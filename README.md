@@ -1,39 +1,12 @@
-# [Your site's title]
-
-## Start here (delete this section before you submit)
-
-This repository is your starting point for the Campus Comps case. It already holds the dataset, its description sheet, project instructions for your AI coding agent, and outlines of the README and agent log that the case asks for.
-
-1. **Turn on GitHub Pages.** In this repository, open **Settings**, then **Pages**. Under "Build and deployment," set **Source** to **GitHub Actions**. GitHub may suggest workflows to add. Skip them: this repository already has one, `.github/workflows/pages.yml`.
-2. **Publish for the first time.** Open the **Actions** tab, choose **Publish site to GitHub Pages** in the sidebar, click **Run workflow**, then click **Run workflow** again to confirm. If the tab already shows a failed run from when you created the repository, that's expected: Pages wasn't turned on yet. When the new run shows a green check, your site is at `https://your-username.github.io/your-repo-name/`. It shows a placeholder page until you replace `index.html`.
-
-    From then on, every push to the main branch publishes the site within a few minutes. If the live site doesn't show a change, open the **Actions** tab. A red X means the publish failed, and the run's log says why.
-3. **Open the repository in your AI coding agent.** Its project instructions are in `AGENTS.md`. If your agent reads its instructions from a file with a different name, check its documentation and copy `AGENTS.md` to that name. Add to the instructions as you learn what your agent needs.
-4. **Read `docs/data_description_sheet.md`** before you ask the agent for any analysis.
-5. **Build in small steps,** as the setup guide describes. Add an entry to `AGENT_LOG.md` each time you work with the agent.
-6. **Fill in every section below** before you submit.
-
-| Path | What it is |
-|---|---|
-| `index.html` | A placeholder page. Replace it with your site. |
-| `data/college_town_home_sales.csv` | The dataset, version 1.0: 35,442 rows. Your site reads this file. |
-| `data/college_town_home_sales.xlsx`, `.sqlite`, `.duckdb`, `.parquet` | The same data in Excel, SQLite, DuckDB and Parquet formats, with identical values |
-| `docs/data_description_sheet.md` | What every column means, and five problems in the data |
-| `AGENTS.md` | Project instructions for your AI coding agent |
-| `AGENT_LOG.md` | Your agent log |
-| `scripts/` | Scripts that make smaller data files for the site |
-| `checks/` | Your separate checks of the site's numbers |
-| `.github/workflows/pages.yml` | Publishes the site to GitHub Pages each time you push to main. It publishes your files as they are, with no build step. |
-
-Don't edit any of the five dataset files. Your site needs only the CSV file. The other formats make it easier to check numbers a second way, for example with a pivot table in Excel or a SQL query on the SQLite file. In SQLite and DuckDB, the table is named `home_sales`.
+# Campus Comps
 
 ## What this site is for
 
-_Replace this line with your site's question and audience, or a short description of the site._
+Campus Comps gives home buyers, students and anyone curious about college-town housing a quick way to compare completed home sale prices across 18 U.S. towns. The town table can be searched and sorted by median price or recorded sales.
 
 ## Live site
 
-https://your-username.github.io/your-repo-name/
+https://subwaymatch.github.io/campus-properties-test/
 
 ## Preview it on your own computer
 
@@ -43,32 +16,29 @@ From the repository folder, start a local web server:
 python -m http.server 8000
 ```
 
-Then open http://localhost:8000/. Opening `index.html` straight from the file won't load the data.
-
-_If you preview the site another way, describe that way here instead._
+Then open http://localhost:8000/. The page fetches `data/college_town_home_sales.csv`, so opening `index.html` directly from the file system will not load the data.
 
 ## Data notes
 
-_Replace this line. Say which rows you left out and why, and how each figure on the site is defined. "Five things that will bite you" in the description sheet lists the problems to cover._
+The page reads the committed CSV directly in the browser; it has no build step or external library. Every CSV row contributes to recorded-sale counts. The city-level and overall median sale prices include sale prices of $1,000 or more, excluding the low values flagged as implausible in the data description. There is no upper-price cutoff. Medians, rather than averages, reduce the influence of extreme values. Rows are not deduplicated by street address because an address can represent multiple homes or sales.
+
+Days on market, property type and assessed value are not used in the analysis. In particular, a blank list or contract date is not treated as zero days, `home_type` is unreliable, and assessed value is not the sale price. Values are as reported by the collection source and have not been independently verified against county records. See [the data description sheet](docs/data_description_sheet.md) for definitions and limitations.
 
 ## How we checked our numbers
 
-_Replace this line. List at least three numbers shown on the site. Check each one with a calculation that is separate from the site's own code, such as a spreadsheet formula, a SQL query or a short script in `checks/`._
+We checked the page's summary calculations independently against the SQLite copy of the dataset. The median checks use Python's `statistics.median` on values selected from SQLite.
 
 | Number on the site | Where it appears | How we checked it | Result |
 |---|---|---|---|
-| | | | |
-| | | | |
-| | | | |
+| 35,442 recorded sales | Overview card | `SELECT COUNT(*) FROM home_sales` | 35,442 |
+| 18 towns | Overview card | Count rows from `SELECT city, state FROM home_sales GROUP BY city, state` | 18 |
+| $410,000 overall median | Overview card | Select `sale_price >= 1000`, then calculate the median | $410,000 |
+| $350,000 Gainesville median | Town comparison | Select Gainesville sales with `sale_price >= 1000`, then calculate the median | $350,000 |
 
 ## Tools we used
 
-_Replace this line with your AI coding agent or agents, and any libraries and other tools you used._
+GitHub Copilot; plain HTML, CSS and JavaScript; Python's local HTTP server for previewing and Python's standard-library SQLite and statistics modules for independent checks. No frontend libraries or build tools.
 
 ## Citation
 
 College-town home sales dataset, version 1.0 (2026). University of Illinois-Deloitte Foundation Center for Business Emerging Technologies. Data collected March 2026.
-
-## Who did what
-
-_For teams: replace this line with each member's name and what they did. If you worked alone, delete this section._
